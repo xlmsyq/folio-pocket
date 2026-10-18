@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {detectFormat,unwrapFence,validateSource,safeFilename,escapeHTML,pageCount,clampPage,MAX_BYTES} from '../dist/core.js';
+test('file extensions and explicit format win over ambiguous content',()=>{assert.equal(detectFormat('note.md','<div>note</div>'),'md');assert.equal(detectFormat('note.HTML','# hi'),'html');assert.equal(detectFormat('note.txt','# hi'),'txt');assert.equal(detectFormat('note','<article>ok</article>'),'html');assert.equal(detectFormat('note','\ufeff<!DOCTYPE html><title>x</title>'),'html');assert.equal(detectFormat('note','<div>ok</div>','md'),'md');});
+test('AI wrapper is removed but nested code examples are kept',()=>{assert.equal(unwrapFence('```html\n<h1>Hi</h1>\n```'),'<h1>Hi</h1>');assert.equal(unwrapFence('````markdown\n# H\n```js\nx\n```\n````'),'# H\n```js\nx\n```');assert.equal(unwrapFence('# H\n```js\nx\n```'),'# H\n```js\nx\n```');});
+test('empty, oversized UTF-8 and binary files are rejected',()=>{assert.throws(()=>validateSource('  '));assert.throws(()=>validateSource('a\0b'));assert.throws(()=>validateSource('汉'.repeat(Math.ceil(MAX_BYTES/3))));assert.doesNotThrow(()=>validateSource('# 你好'));});
+test('download filenames cannot contain path segments',()=>{assert.equal(safeFilename('../../bad:report.md','html'),'.._.._bad_report.html');assert.equal(safeFilename('报告.md','md'),'报告.md');assert.equal(safeFilename('', 'txt'),'document.txt');});
+test('markup escapes as text',()=>{assert.equal(escapeHTML('<script>"&\''),'&lt;script&gt;&quot;&amp;&#39;');});
+test('pagination counts exact boundaries without phantom last pages',()=>{assert.equal(pageCount(300,300),1);assert.equal(pageCount(636,300),2);assert.equal(pageCount(972,300),3);assert.equal(clampPage(99,3),2);assert.equal(clampPage(-1,3),0);assert.equal(clampPage(NaN,3),0);});
