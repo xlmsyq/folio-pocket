@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5f0"><meta name="description" content="把 AI 生成的 HTML、Markdown 放进口袋。随页支持本地导入、舒适阅读、分页和保存 PDF。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>随页 Folio · AI 文档随身读</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./style.css">
+  <script src="./vendor/marked.umd.js" defer></script><script src="./vendor/purify.min.js" defer></script><script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="app-header"><a class="brand" href="./" aria-label="随页首页"><span class="logo">f<span>•</span></span><span>随页 <small>FOLIO</small></span></a><div class="header-right"><span class="local-dot">本地阅读 · 无需登录</span><button class="quiet" id="helpBtn" aria-label="使用帮助">?</button></div></header>
+  <main>
+    <section id="home" class="home">
+      <div class="intro"><p class="eyebrow">A LITTLE SPACE FOR YOUR IDEAS</p><h1>AI 写好了。<br>现在，<em>好好读。</em></h1><p class="intro-copy">把 HTML、Markdown 变成随身的书页。<br>从一份研究计划，到一段灵感，打开就能读。</p></div>
+      <div class="import-card" id="dropZone"><div class="paper-art" aria-hidden="true"><div class="back-paper"></div><div class="front-paper"><span>FOLIO / 01</span><b>让想法<br>落在纸上。</b><i></i><i></i><i></i></div><span class="format-chip">.md → 书页</span></div><h2>放进你的第一份文档</h2><p>选择手机「文件」中的文档，或直接粘贴内容</p><button class="primary" id="importBtn">＋ 导入文件</button><button class="secondary" id="pasteBtn">粘贴 HTML / Markdown</button><div class="file-types">HTML · MD · TXT <span>每份最多 2 MB</span></div></div>
+      <button id="demoBtn" class="demo-link">先翻一翻示例文档 <span>↗</span></button>
+      <section class="recent-section" aria-labelledby="recentTitle"><div class="section-title"><h2 id="recentTitle">你的书架</h2><span id="recentCount">只保存在此浏览器</span></div><div id="recentList" class="recent-list"><p class="empty">读过的文档，会在这里等你。</p></div></section>
+      <footer class="home-footer"><span>为小屏幕，留一点阅读的余地。</span><span>随页 · 1.0</span></footer>
+    </section>
+    <section id="reader" class="reader" hidden>
+      <div class="document-bar"><button id="backBtn" class="quiet">‹ 书架</button><div class="document-name"><strong id="docTitle"></strong><span id="docMeta"></span></div><button id="exportBtn" class="primary small">导出 ↗</button></div>
+      <div class="toolbar"><div class="mode-switch" role="group" aria-label="阅读模式"><button data-mode="read" aria-pressed="true">阅读</button><button data-mode="pages" aria-pressed="false">分页</button><button data-mode="original" aria-pressed="false">原样</button><button data-mode="source" aria-pressed="false">源码</button></div><div class="reading-tools"><button id="tocBtn" class="quiet">☰ 目录</button><button id="searchBtn" class="quiet" aria-label="搜索文档">⌕ 搜索</button><button id="settingsBtn" class="quiet" aria-label="阅读设置">Aa</button></div></div>
+      <div id="searchBar" class="search-bar" hidden><input id="searchInput" type="search" placeholder="搜索文档中的文字" aria-label="搜索文字"><span id="searchCount"></span><button id="prevMatch" class="quiet" aria-label="上一个结果">↑</button><button id="nextMatch" class="quiet" aria-label="下一个结果">↓</button><button id="closeSearch" class="quiet" aria-label="关闭搜索">×</button></div>
+      <div id="modeNote" class="mode-note" hidden></div>
+      <div class="reader-stage"><iframe id="docFrame" title="文档阅读区" sandbox="allow-same-origin" referrerpolicy="no-referrer"></iframe><pre id="sourceView" tabindex="0" hidden></pre></div>
+      <div class="reader-bottom"><span id="readingStatus">准备阅读</span><div id="pageControls" hidden><button id="prevPage" class="quiet" aria-label="上一页">←</button><label><input id="pageInput" type="number" min="1" value="1" aria-label="跳转页码"><span id="pageTotal">/ 1</span></label><button id="nextPage" class="quiet" aria-label="下一页">→</button></div><div class="progress-track"><i id="progressFill"></i></div></div>
+    </section>
+  </main>
+  <input id="fileInput" type="file" accept=".md,.markdown,.html,.htm,.txt,text/plain,text/markdown,text/html" hidden multiple>
+  <dialog id="pasteDialog"><form id="pasteForm"><div class="dialog-heading"><h2 id="pasteTitle">把内容放进来</h2><button type="button" class="quiet close-dialog" aria-label="关闭">×</button></div><label class="field-label" for="pasteName">文档名称</label><input id="pasteName" maxlength="120" placeholder="未命名文档"><div class="form-row"><label class="field-label" for="pasteFormat">内容格式</label><select id="pasteFormat"><option value="auto">自动识别</option><option value="md">Markdown</option><option value="html">HTML</option><option value="txt">纯文本</option></select></div><textarea id="pasteContent" placeholder="在这里粘贴 AI 生成的内容…" aria-label="文档内容" required></textarea><p class="muted" id="pasteHint">支持带有 ```html 或 ```markdown 外层代码围栏的内容。</p><button type="submit" class="primary wide">开始阅读 →</button></form></dialog>
+  <dialog id="tocDialog"><div class="dialog-heading"><h2>文档目录</h2><button class="quiet close-dialog" aria-label="关闭">×</button></div><nav id="tocList" aria-label="文档章节"></nav></dialog>
+  <dialog id="settingsDialog"><div class="dialog-heading"><h2>读得舒服一点</h2><button class="quiet close-dialog" aria-label="关闭">×</button></div><label class="setting-label" for="fontSize">字号 <output id="fontOutput">18 px</output></label><input id="fontSize" type="range" min="14" max="28" step="1" value="18"><div class="setting-label">纸张颜色</div><div class="theme-options"><button data-theme="light" aria-pressed="true">白纸</button><button data-theme="sepia" aria-pressed="false">暖纸</button><button data-theme="dark" aria-pressed="false">夜读</button></div><p class="muted">阅读和分页模式会重新排版；原样模式保留文档自己的样式。</p><button id="editBtn" class="secondary wide">编辑 / 更新文档</button></dialog>
+  <dialog id="exportDialog"><div class="dialog-heading"><h2>把这一份带走</h2><button class="quiet close-dialog" aria-label="关闭">×</button></div><button id="printBtn" class="export-option"><strong>保存为 PDF <span>↗</span></strong><small>打开系统打印，保留可选中的文字</small></button><p class="muted">iPhone：在打印预览上双指放大，再点分享 →「存储到文件」。电脑 / Android 可选择「保存为 PDF」。导出采用统一阅读版式。</p><button id="downloadHtmlBtn" class="export-option"><strong>下载阅读版 HTML <span>↓</span></strong><small>独立文档，方便转发或再次打印</small></button><button id="downloadSourceBtn" class="export-option"><strong>下载原始文件 <span>↓</span></strong><small>保留导入时的内容与格式</small></button></dialog>
+  <dialog id="helpDialog"><div class="dialog-heading"><h2>随页，怎么用？</h2><button class="quiet close-dialog" aria-label="关闭">×</button></div><ol class="help-steps"><li>将 AI 生成的 HTML / MD 保存到手机「文件」，或复制文字。</li><li>点击「导入文件」或「粘贴」，即可阅读。</li><li>用「分页」逐页翻阅；用「原样」查看 HTML 自带的排版。</li><li>点击「导出」保存 PDF，或下载阅读版 HTML。</li></ol><p>在 Safari 的分享菜单中选择「添加到主屏幕」，以后就像 App 一样打开。</p><div class="help-note">文档仅保存在当前浏览器。清除浏览器数据会删除书架，重要文档请保留原文件。首次联网打开后，已缓存的工具和书架可以离线使用。</div><p class="muted">此版本不执行文档里的脚本、不加载外部图片和字体。交互图表、Mermaid 和 LaTeX 代码不会自动运行或排版；内嵌图片、静态 SVG 可显示。无法自动读取其他 App 的文件更新，请重新导入或选择「编辑 / 更新文档」。</p></dialog>
+  <dialog id="deleteDialog"><div class="dialog-heading"><h2>从书架移除？</h2></div><p id="deleteText"></p><div class="dialog-actions"><button class="secondary close-dialog">保留</button><button id="confirmDelete" class="primary">移除</button></div></dialog>
+  <div id="toast" role="status" aria-live="polite" hidden></div><article id="printDocument" class="prose" aria-hidden="true"></article>
+  <noscript><p class="noscript">请启用 JavaScript 后使用文档阅读器。</p></noscript>
+</body></html>
